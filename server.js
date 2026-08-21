@@ -150,7 +150,6 @@ async function main() {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 hari
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production", // VULN-007 FIX
       },
     })
   );
