@@ -1,2 +1,2 @@
-# SisaBerapa-
+# SisaBerapa
 Satu aplikasi untuk keuanganmu
