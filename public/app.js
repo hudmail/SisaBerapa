@@ -1322,6 +1322,11 @@ function init() {
   el("saveGoalBtn").addEventListener("click", saveGoal);
   el("saveReminderBtn").addEventListener("click", saveReminder);
 
+  // Settings
+  if (el("changePasswordForm")) {
+    el("changePasswordForm").addEventListener("submit", handleChangePassword);
+  }
+
   // Logout
   ["logoutBtn", "logoutBtnMobile"].forEach((id) => {
     const btn = document.getElementById(id);
@@ -1345,6 +1350,51 @@ async function logout() {
 }
 
 // --- Account Settings ---
+async function handleChangePassword(e) {
+  e.preventDefault();
+  const oldPassword = el("cpOldPassword").value;
+  const newPassword = el("cpNewPassword").value;
+  const btn = el("changePasswordBtn");
+  const errBox = el("changePasswordError");
+  const successBox = el("changePasswordSuccess");
+
+  errBox.classList.add("hidden");
+  successBox.classList.add("hidden");
+
+  if (newPassword.length < 8 || !/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+    errBox.textContent = "Password baru minimal 8 karakter dan harus mengandung huruf serta angka.";
+    errBox.classList.remove("hidden");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Menyimpan...";
+
+  try {
+    const res = await fetch("/api/account/password", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+
+    if (res.ok) {
+      successBox.textContent = "Password berhasil diubah!";
+      successBox.classList.remove("hidden");
+      el("changePasswordForm").reset();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      errBox.textContent = data.error || "Gagal mengubah password.";
+      errBox.classList.remove("hidden");
+    }
+  } catch (err) {
+    errBox.textContent = "Tidak bisa terhubung ke server.";
+    errBox.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Simpan Password";
+  }
+}
+
 function showDeleteConfirm() {
   el("deleteAccountSection").classList.add("hidden");
   el("deleteConfirmSection").classList.remove("hidden");
