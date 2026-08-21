@@ -408,6 +408,25 @@ async function main() {
     res.json({ ok: true });
   });
   // ================= ACCOUNT =================
+  app.put("/api/account/password", requireAuth, async (req, res) => {
+    const { oldPassword, newPassword } = req.body || {};
+    if (!oldPassword || !newPassword) return res.status(400).json({ error: "Data tidak lengkap" });
+    if (newPassword.length < 8 || !/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return res.status(400).json({ error: "Password baru minimal 8 karakter dan harus mengandung huruf serta angka." });
+    }
+
+    const user = queryOne("SELECT * FROM users WHERE id = ?", [req.session.userId]);
+    if (!user) return res.status(404).json({ error: "Akun tidak ditemukan" });
+
+    const valid = await bcrypt.compare(oldPassword, user.password_hash);
+    if (!valid) return res.status(401).json({ error: "Password lama salah" });
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    db.run("UPDATE users SET password_hash = ? WHERE id = ?", [hash, req.session.userId]);
+    saveDb();
+    res.json({ ok: true });
+  });
+
   app.delete("/api/account", async (req, res) => {
     const { password } = req.body || {};
     if (!password) return res.status(400).json({ error: "Password wajib diisi untuk konfirmasi" });
