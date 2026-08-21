@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - SisaBerapa?</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        primary: '#10B981',
+                        'primary-hover': '#059669',
+                        background: '#F9FAFB',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-background font-sans antialiased min-h-screen flex items-center justify-center px-4">
+
+    <div class="w-full max-w-sm">
+        <div class="flex flex-col items-center mb-8">
+            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white mb-3">
+                <i class="ph ph-wallet text-2xl"></i>
+            </div>
+            <h1 class="font-bold text-xl text-gray-900">SisaBerapa?</h1>
+            <p class="text-sm text-gray-500 mt-1">Satu aplikasi untuk keuanganmu</p>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200">
+                <button id="tabLogin" onclick="switchTab('login')"
+                    class="flex-1 py-3 text-sm font-semibold text-primary border-b-2 border-primary">Masuk</button>
+                <button id="tabRegister" onclick="switchTab('register')"
+                    class="flex-1 py-3 text-sm font-semibold text-gray-500 hover:text-gray-700">Daftar Akun</button>
+            </div>
+
+            <div class="p-6">
+                <div id="errorBox"
+                    class="hidden text-sm px-3 py-2 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-600">
+                </div>
+                <div id="successBox"
+                    class="hidden text-sm px-3 py-2 mb-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600">
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" id="loginUsername" required autocomplete="username"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="loginPassword" required autocomplete="current-password"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border">
+                    </div>
+                    <button type="submit" id="loginBtn"
+                        class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-2">
+                        Masuk
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Username</label>
+                        <input type="text" id="regUsername" required autocomplete="off" placeholder="Minimal 8 karakter"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+                        <input type="password" id="regPassword" required autocomplete="new-password"
+                            placeholder="Minimal 8 karakter"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border">
+                    </div>
+                    <button type="submit" id="registerBtn"
+                        class="w-full py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-2">
+                        Buat Akun
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const errorBox = document.getElementById("errorBox");
+        const successBox = document.getElementById("successBox");
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const tabLogin = document.getElementById("tabLogin");
+        const tabRegister = document.getElementById("tabRegister");
+
+        function switchTab(tab) {
+            errorBox.classList.add("hidden");
+            successBox.classList.add("hidden");
+            if (tab === 'login') {
+                loginForm.classList.remove("hidden");
+                registerForm.classList.add("hidden");
+                tabLogin.className = "flex-1 py-3 text-sm font-semibold text-primary border-b-2 border-primary";
+                tabRegister.className = "flex-1 py-3 text-sm font-semibold text-gray-500 hover:text-gray-700 border-b-2 border-transparent";
+            } else {
+                loginForm.classList.add("hidden");
+                registerForm.classList.remove("hidden");
+                tabRegister.className = "flex-1 py-3 text-sm font-semibold text-primary border-b-2 border-primary";
+                tabLogin.className = "flex-1 py-3 text-sm font-semibold text-gray-500 hover:text-gray-700 border-b-2 border-transparent";
+            }
+        }
+
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            errorBox.classList.add("hidden");
+            successBox.classList.add("hidden");
+            const btn = document.getElementById("loginBtn");
+            btn.disabled = true;
+            btn.textContent = "Memproses...";
+
+            const username = document.getElementById("loginUsername").value;
+            const password = document.getElementById("loginPassword").value;
+
+            try {
+                const res = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+                if (res.ok) {
+                    window.location.href = "/";
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    errorBox.textContent = data.error || "Login gagal. Coba lagi.";
+                    errorBox.classList.remove("hidden");
+                }
+            } catch (err) {
+                errorBox.textContent = "Tidak bisa terhubung ke server.";
+                errorBox.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Masuk";
+            }
+        });
+
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            errorBox.classList.add("hidden");
+            successBox.classList.add("hidden");
+            const btn = document.getElementById("registerBtn");
+            btn.disabled = true;
+            btn.textContent = "Mendaftarkan...";
+
+            const username = document.getElementById("regUsername").value;
+            const password = document.getElementById("regPassword").value;
+
+            try {
+                const res = await fetch("/api/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+                if (res.ok) {
+                    successBox.textContent = "Pendaftaran berhasil! Mengalihkan...";
+                    successBox.classList.remove("hidden");
+                    setTimeout(() => window.location.href = "/", 1500);
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    errorBox.textContent = data.error || "Pendaftaran gagal.";
+                    errorBox.classList.remove("hidden");
+                }
+            } catch (err) {
+                errorBox.textContent = "Tidak bisa terhubung ke server.";
+                errorBox.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Buat Akun";
+            }
+        });
+    </script>
+</body>
+
+</html>
