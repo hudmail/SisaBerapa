@@ -12,10 +12,10 @@ Dashboard web untuk mencatat pemasukan dan pengeluaran bulanan, dibuat khusus un
 - **Tujuan Keuangan (Tabungan)**: Pantau progres tabungan untuk target jangka pendek/panjang (seperti beli laptop, liburan). Dana yang ditambahkan otomatis tercatat sebagai pengeluaran supaya saldo tetap akurat.
 - **Pengingat Tagihan**: Catat tagihan yang belum jatuh tempo. Klik "Tandai Lunas" untuk mencatat otomatis sebagai pengeluaran!
 - **Manajemen Transaksi**: Tambah, cari, hapus transaksi (dengan otomatisasi titik ribuan `1.500.000` saat mengetik).
-- **Export Data**: Unduh riwayat transaksi per bulan dalam format `.csv`.
+- **Export Data**: Unduh riwayat transaksi per bulan dalam format `.pdf` (tabel rapi + ringkasan) atau `.xlsx` (Excel), lengkap dengan format Rupiah dan baris ringkasan (Total Pemasukan/Pengeluaran/Saldo).
 - **Database Portabel**: Menggunakan *Pure JS SQLite* (`sql.js`), data disimpan permanen di file lokal (tidak hilang direstart) tanpa drama kompilasi *native module*.
 
-> **Catatan koneksi**: frontend memuat Tailwind CSS, font, Chart.js, dan ikon Phosphor dari CDN publik. Server (backend) tidak butuh internet untuk berjalan, tapi **browser yang mengakses aplikasi** butuh koneksi internet supaya tampilan termuat sempurna.
+> **Catatan koneksi**: frontend memuat Tailwind CSS, font, Chart.js, ikon Phosphor, serta library export (SheetJS untuk Excel, jsPDF untuk PDF) dari CDN publik. Server (backend) tidak butuh internet untuk berjalan, tapi **browser yang mengakses aplikasi** butuh koneksi internet supaya tampilan termuat sempurna dan fitur export berfungsi.
 
 ## Struktur Proyek
 
