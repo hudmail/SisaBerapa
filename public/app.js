@@ -764,33 +764,112 @@ function renderInsight(mtx) {
   }
 }
 
-// --- Export CSV ---
-function exportCSV() {
+// --- Export PDF & Excel ---
+function getExportData() {
   const mtx = [...monthTx()].sort((a, b) => (a.date < b.date ? -1 : 1));
+  let income = 0, expense = 0;
+  for (const t of mtx) {
+    if (t.type === "income") income += t.amount;
+    else expense += t.amount;
+  }
+  return { mtx, income, expense, saldo: income - expense };
+}
+
+function exportExcel() {
+  const { mtx, income, expense, saldo } = getExportData();
   if (mtx.length === 0) {
     showToast("Tidak ada transaksi untuk diekspor.", "error");
     return;
   }
+  if (typeof XLSX === "undefined") {
+    showToast("Gagal memuat library Excel. Cek koneksi internet.", "error");
+    return;
+  }
+
   const rows = [["Tanggal", "Tipe", "Kategori", "Keterangan", "Metode", "Jumlah"]];
   for (const t of mtx) {
     rows.push([
       t.date,
       t.type === "income" ? "Pemasukan" : "Pengeluaran",
       t.category,
-      (t.note || "").replace(/"/g, '""'),
+      t.note || "",
       t.method || "Tunai",
-      t.amount,
+      fmtRupiah(t.amount),
     ]);
   }
-  const csv = rows.map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `buku-kas-${selectedYM}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast("CSV berhasil diunduh!");
+  rows.push(["", "", "", "", "", ""]);
+  rows.push(["", "", "", "", "Total Pemasukan", fmtRupiah(income)]);
+  rows.push(["", "", "", "", "Total Pengeluaran", fmtRupiah(expense)]);
+  rows.push(["", "", "", "", "Saldo Bersih", fmtRupiah(saldo)]);
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"] = [{ wch: 12 }, { wch: 13 }, { wch: 16 }, { wch: 30 }, { wch: 14 }, { wch: 16 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Transaksi");
+  XLSX.writeFile(wb, `buku-kas-${selectedYM}.xlsx`);
+  showToast("Excel berhasil diunduh!");
+}
+
+function exportPDF() {
+  const { mtx, income, expense, saldo } = getExportData();
+  if (mtx.length === 0) {
+    showToast("Tidak ada transaksi untuk diekspor.", "error");
+    return;
+  }
+  if (typeof window.jspdf === "undefined") {
+    showToast("Gagal memuat library PDF. Cek koneksi internet.", "error");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+
+  doc.setFontSize(14);
+  doc.setFont(undefined, "bold");
+  doc.text("Buku Kas Mahasiswa", 40, 40);
+  doc.setFontSize(10);
+  doc.setFont(undefined, "normal");
+  doc.text(`Periode: ${monthLabel(selectedYM)}`, 40, 58);
+
+  const body = mtx.map((t) => [
+    t.date,
+    t.type === "income" ? "Pemasukan" : "Pengeluaran",
+    t.category,
+    t.note || "-",
+    t.method || "Tunai",
+    fmtRupiah(t.amount),
+  ]);
+
+  doc.autoTable({
+    startY: 72,
+    head: [["Tanggal", "Tipe", "Kategori", "Keterangan", "Metode", "Jumlah"]],
+    body,
+    styles: { fontSize: 8, cellPadding: 5 },
+    headStyles: { fillColor: [16, 100, 70] },
+    columnStyles: { 5: { halign: "right" } },
+    didParseCell: (data) => {
+      if (data.section === "body" && data.column.index === 1) {
+        data.cell.styles.textColor = data.cell.raw === "Pemasukan" ? [5, 150, 105] : [225, 29, 72];
+      }
+    },
+  });
+
+  const finalY = doc.lastAutoTable.finalY + 20;
+  doc.setFontSize(10);
+  doc.setFont(undefined, "bold");
+  doc.text("Ringkasan", 40, finalY);
+  doc.setFont(undefined, "normal");
+  doc.text(`Total Pemasukan     : ${fmtRupiah(income)}`, 40, finalY + 16);
+  doc.text(`Total Pengeluaran   : ${fmtRupiah(expense)}`, 40, finalY + 32);
+  doc.setFont(undefined, "bold");
+  doc.text(`Saldo Bersih        : ${fmtRupiah(saldo)}`, 40, finalY + 48);
+
+  doc.save(`buku-kas-${selectedYM}.pdf`);
+  showToast("PDF berhasil diunduh!");
+}
+
+function toggleExportMenu() {
+  el("exportMenu").classList.toggle("hidden");
 }
 
 // --- Amount Formatting ---
@@ -1285,8 +1364,25 @@ function init() {
     renderTransactionPage();
   });
 
-  // Export CSV
-  el("exportBtn").addEventListener("click", exportCSV);
+  // Export PDF & Excel
+  el("exportBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleExportMenu();
+  });
+  el("exportPdfBtn").addEventListener("click", () => {
+    el("exportMenu").classList.add("hidden");
+    exportPDF();
+  });
+  el("exportExcelBtn").addEventListener("click", () => {
+    el("exportMenu").classList.add("hidden");
+    exportExcel();
+  });
+  document.addEventListener("click", (e) => {
+    const menu = el("exportMenu");
+    if (!menu.classList.contains("hidden") && !menu.contains(e.target) && e.target !== el("exportBtn")) {
+      menu.classList.add("hidden");
+    }
+  });
 
   // Drawer: type toggle
   document.querySelectorAll('input[name="drawerTxType"]').forEach((radio) => {
