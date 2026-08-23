@@ -21,6 +21,13 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- SheetJS (Excel export) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- jsPDF + AutoTable (PDF export) -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
@@ -467,10 +474,23 @@
                         <p class="text-sm text-gray-500 mt-1">Semua catatan pemasukan dan pengeluaran Anda.</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button id="exportBtn"
-                            class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-soft text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
-                            <i class="ph ph-export text-lg"></i> Export CSV
-                        </button>
+                        <div class="relative">
+                            <button id="exportBtn" type="button"
+                                class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-soft text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                <i class="ph ph-export text-lg"></i> Export <i class="ph ph-caret-down text-xs ml-1"></i>
+                            </button>
+                            <div id="exportMenu"
+                                class="hidden absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                                <button id="exportPdfBtn" type="button"
+                                    class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                    <i class="ph ph-file-pdf text-rose-500 text-lg"></i> Export PDF
+                                </button>
+                                <button id="exportExcelBtn" type="button"
+                                    class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                    <i class="ph ph-file-xls text-green-600 text-lg"></i> Export Excel
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
